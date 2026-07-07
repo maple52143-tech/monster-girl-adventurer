@@ -3,10 +3,12 @@ from arcade.future.light import Light, LightLayer
 
 from src.core.resource_manager import res_manager
 from src.core.settings import SCREEN_WIDTH, SCREEN_HEIGHT
+from src.scenes.menu import Menu
+from src.core.game_window import GameWindow
 
 class Loading(arcade.View):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, window: GameWindow):
+        super().__init__(window=window)
         self.sprites = arcade.SpriteList()
         self.title = arcade.Sprite(res_manager.image("sign"), scale=1.2, center_x=800, center_y=450)
         self.sprites.append(self.title)
@@ -39,6 +41,8 @@ class Loading(arcade.View):
             self.lighted = True
         if self.enter_time >= 5.0:
             arcade.stop_sound(self.play_back)
+            self.window.switch_scene("menu")
+
 
 
 
