@@ -11,7 +11,7 @@ class Menu(arcade.View):
                                 (255, 255, 255), 40, anchor_x="center", anchor_y="center")
 
     def on_show_view(self) -> None:
-        self.background_color = arcade.csscolor.PURPLE
+        self.background_color = arcade.csscolor.GRAY
 
 
     def on_draw(self) -> bool | None:

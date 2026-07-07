@@ -1,5 +1,6 @@
 from pathlib import Path
 import os
+import json
 import arcade
 
 def search_res(path: Path, name: str):
@@ -28,6 +29,16 @@ class ResourceManager:
             raise FileNotFoundError(f"音频文件不存在: {type} / {name}")
 
         return arcade.load_sound(file)
+
+    def data(self, name: str):
+        file = search_res(Path(os.path.join(self.res_dir, "data")), name)
+        if file is None:
+            raise FileNotFoundError(f"数据文件不存在: {name}")
+
+        with open(file, "r", encoding='utf-8') as f:
+            data = json.load(f)
+
+        return data, file.parent.name
 
 res_manager = ResourceManager()
 

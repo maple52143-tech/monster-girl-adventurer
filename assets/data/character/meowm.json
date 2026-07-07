@@ -1,0 +1,9 @@
+{
+  "name": "喵姆",
+  "introduction": "喵姆喵姆",
+  "initial_deck": ["attack", "attack", "attack", "attack", "attack", "attack", "attack", "attack"],
+  "initial_status": {
+      "max_hp": 60.0,
+      "max_mp": 8.0
+  }
+}
