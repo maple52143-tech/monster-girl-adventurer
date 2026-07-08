@@ -1,8 +1,10 @@
 from pathlib import Path
+from functools import lru_cache
 import os
 import json
 import arcade
 
+@lru_cache(maxsize=1024)
 def search_res(path: Path, name: str):
     pattern = f"{name}.*"
     matches = list(path.rglob(pattern))

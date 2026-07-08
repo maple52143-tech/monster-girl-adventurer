@@ -39,3 +39,5 @@ class StandardSet:
         if self.is_moving:
             self.update_position()
             self.is_moving = False
+
+        self.sprites.draw()
