@@ -42,6 +42,15 @@ class ResourceManager:
 
         return data, file.parent.name
 
+    def card(self, name: str):
+        image_file = search_res(Path(os.path.join(self.res_dir, "images", "card")), name)
+        if image_file is None:
+            raise FileNotFoundError(f"卡面文件不存在: {name}")
+
+        data_file, _ = self.data(f"card_{name}")
+
+        return image_file, data_file
+
 res_manager = ResourceManager()
 
 
