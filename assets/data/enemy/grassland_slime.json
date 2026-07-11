@@ -1,0 +1,20 @@
+{
+  "name": "草原史莱姆",
+  "normal": {
+      "properties": {
+          "max_hp": 20
+      },
+      "skills": ["mucus_strike", "soft_body", "mucus_spray", "C"]
+  },
+  "hard": {
+      "properties": {
+          "max_hp": 40
+      },
+      "skills": ["mucus_strike", "soft_body", "mucus_spray", "C"]
+  },
+  "initial_deck": ["attack"],
+  "initial_status": {
+      "max_hp": 0.0,
+      "max_mp": 8.0
+  }
+}

@@ -14,6 +14,7 @@ class Combat(arcade.View):
         self.sprites = arcade.SpriteList()
 
         self.character = Character("meowm")
+        self.imagine_enemy = Character("grassland_slime")
         self.status_blocks = [StatusBlock(0, SCREEN_HEIGHT, self.character)]
         self.deck = Deck(self.character, SCREEN_WIDTH / 2, 0)
         self.pointer = 0
@@ -26,9 +27,25 @@ class Combat(arcade.View):
             s.update()
         self.deck.update()
 
+    def on_mouse_motion(self, x: int, y: int, dx: int, dy: int) -> bool | None:
+        for card in self.deck.hand[::-1]:
+            if card.collides_with_point((x, y)):
+                self.deck.sprites.remove(card)
+                self.deck.sprites.append(card)
+                return
+
+    def on_mouse_press(self, x: int, y: int, button: int, modifiers: int) -> bool | None:
+        for card in self.deck.hand[::-1]:
+            if card.collides_with_point((x, y)):
+                self.deck.hand.remove(card)
+
+                self.deck.update_card()
+                return
+
     def on_draw(self) -> bool | None:
         self.clear()
         self.sprites.draw()
         for s in self.status_blocks:
             s.draw()
         self.deck.draw()
+        arcade.draw_text(f"health: {self.imagine_enemy.hp}", 0.5, 0.5, font_size=20)

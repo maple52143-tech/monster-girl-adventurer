@@ -22,7 +22,7 @@ class Character:
         self.hand: list[Card] = []
         self.draw_pile = []  # 摸牌堆
 
-        self.cards = [Card(i) for i in self.data['initial_deck']]
+        self.cards = [Card(i, self) for i in self.data['initial_deck']]
 
         self.draw_pile = self.cards[:]
         self.hand = self.draw_pile[:]
@@ -35,7 +35,7 @@ class Character:
 
     @hp.setter
     def hp(self, value):
-        if value < 0:
+        if value < 0 and self.type != "enemy":
             self._hp = 0
             self.on_death()
         else:
