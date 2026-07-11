@@ -1,4 +1,5 @@
 import math
+import numpy as np
 import arcade
 
 from src.objects.standard import StandardSet
@@ -9,7 +10,7 @@ from src.core.settings import SCREEN_WIDTH, SCREEN_HEIGHT
 
 def circle_calc(hand: list[Card], delta_h: float, delta_w: float):
     if not hand:
-        return
+        return np.array([])
 
     m = hand[0].height * delta_h
     up = hand[0].height * (delta_h + 0.5)
@@ -19,15 +20,15 @@ def circle_calc(hand: list[Card], delta_h: float, delta_w: float):
 
     r = (n + m ** 2) / (2 * m)
 
+    pos_and_angle = []
+
     for i, h in enumerate(hand):
         ix = -kx / 2 + i * x
         iy = math.sqrt(r ** 2 - ix ** 2)
-        angle = -math.atan2(ix, iy) * 180 / math.pi
+        angle = math.atan2(ix, iy) * 180 / math.pi
+        pos_and_angle.append([ix, iy - (r - up), angle])
 
-        h.center_x = ix + SCREEN_WIDTH / 2
-        h.center_y = -(iy - (r - up)) + SCREEN_HEIGHT
-        h.angle = angle
-    return
+    return np.array(pos_and_angle[:])
 
 class Deck(StandardSet):
     def __init__(self, character: Character, x, y):
@@ -37,11 +38,11 @@ class Deck(StandardSet):
         self.card_height = 160
         self.hand = character.hand
         self.radius = 0
+        self.card_pos = circle_calc(self.hand, 0.2, 0.8)
 
-    def behavior(self, events):
-        circle_calc(self.hand, 0.2, 0.6)
-        self.image = self.bg.copy()
+        for i, h in enumerate(self.hand):
+            self.add_sprite(h, self.card_pos[i, 0], self.card_pos[i, 1], self.card_pos[i, 2])
 
-        for h in self.hand:
-            h.behavior(events)
-            self.image.blit(h.image, h.rect)
+    def update(self):
+        if self.is_moving:
+            circle_calc(self.hand, 0.2, 0.8)

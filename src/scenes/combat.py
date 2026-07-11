@@ -4,6 +4,7 @@ from src.core.settings import SCREEN_WIDTH, SCREEN_HEIGHT
 
 from src.objects.status_block import StatusBlock
 from src.objects.character import Character
+from src.objects.deck import Deck
 
 
 class Combat(arcade.View):
@@ -14,6 +15,7 @@ class Combat(arcade.View):
 
         self.character = Character("meowm")
         self.status_blocks = [StatusBlock(0, SCREEN_HEIGHT, self.character)]
+        self.deck = Deck(self.character, SCREEN_WIDTH / 2, 0)
         self.pointer = 0
 
     def on_show_view(self) -> None:
@@ -22,9 +24,11 @@ class Combat(arcade.View):
     def on_update(self, delta_time: float) -> bool | None:
         for s in self.status_blocks:
             s.update()
+        self.deck.update()
 
     def on_draw(self) -> bool | None:
         self.clear()
         self.sprites.draw()
         for s in self.status_blocks:
             s.draw()
+        self.deck.draw()

@@ -17,15 +17,15 @@ class Character:
         self.max_mp = self.data['initial_status']['max_mp']
         self._hp = self.max_hp
         self._mp = self.max_mp / 2
-        self.cards = []
+        self.cards: list[Card] = []
         self.discard_pile = []  # 弃牌堆
-        self.hand = []
+        self.hand: list[Card] = []
         self.draw_pile = []  # 摸牌堆
-
 
         self.cards = [Card(i) for i in self.data['initial_deck']]
 
         self.draw_pile = self.cards[:]
+        self.hand = self.draw_pile[:]
 
         self.shield = 0.0
 

@@ -13,8 +13,8 @@ class StandardSet:
         self.parts: list[list[arcade.Sprite | float]] = []
         self.is_moving = True
 
-    def add_sprite(self, sprite: arcade.Sprite, x: float, y: float):
-        self.parts.append([sprite, x, y])
+    def add_sprite(self, sprite: arcade.Sprite, x: float, y: float, angle: float = 0):
+        self.parts.append([sprite, x, y, angle])
         self.sprites.append(sprite)
 
     def delete_sprite(self, sprite: arcade.Sprite):
@@ -34,6 +34,7 @@ class StandardSet:
         for s in self.parts:
             s[0].center_x = s[1] + self.x + dx
             s[0].center_y = s[2] + self.y + dy
+            s[0].angle = s[3]
 
     def draw(self):
         if self.is_moving:
