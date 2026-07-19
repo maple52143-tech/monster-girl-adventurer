@@ -17,6 +17,7 @@ class Character:
         self.max_mp = self.data['initial_status']['max_mp']
         self._hp = self.max_hp
         self._mp = self.max_mp / 2
+        self.effects = []
         self.cards: list[Card] = []
         self.discard_pile = []  # 弃牌堆
         self.hand: list[Card] = []

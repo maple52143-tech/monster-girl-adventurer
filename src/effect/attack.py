@@ -6,5 +6,7 @@ class AttackEffect(StandardEffect):
         super().__init__("attack", 0, owner)
         self.damage = damage
 
-    def effect(self):
+    def on_apply(self):
+        super().on_apply()
         self.owner.hp = self.owner.hp - self.damage
+        self.tick()

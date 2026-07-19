@@ -11,10 +11,14 @@ class StandardEffect(ABC):
         self.name = name
         self.duration = duration  # 剩余持续回合数
         self.owner = owner
+        self.applied = False
+        self.effective = True
 
     def on_apply(self):
         """状态被施加时触发一次"""
-        pass
+        if self.applied:
+            return
+        self.applied = True
 
     def on_turn_start(self):
         """拥有者回合开始时触发"""
@@ -34,8 +38,10 @@ class StandardEffect(ABC):
 
     def tick(self):
         """通用回合流逝逻辑：减少持续回合，返回是否已过期"""
+        if self.duration <= 0:
+            self.effective = False
+            return
         self.duration -= 1
-        return self.duration <= 0
 
     def __eq__(self, other):
         return self.name == other.name

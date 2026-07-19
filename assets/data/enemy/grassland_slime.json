@@ -1,5 +1,6 @@
 {
   "name": "草原史莱姆",
+  "introduction": "普通的史莱姆，不注意防范的话也具有危险性。",
   "normal": {
       "properties": {
           "max_hp": 20

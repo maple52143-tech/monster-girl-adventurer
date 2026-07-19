@@ -3,7 +3,7 @@ import os
 import arcade
 
 from src.core.resource_manager import res_manager
-
+from src.core.status_manager import status_manager
 
 class Card(arcade.Sprite):
     def __init__(self, name: str, owner):
@@ -13,6 +13,14 @@ class Card(arcade.Sprite):
         self.owner = owner
         self.effects = []
         for name, value in self.data['effect'].items():
-            self.effects.append(res_manager.effect(name)(value))
+            self.effects.append([res_manager.effect(name), value[0], value[1]])
 
-    def use(self, owner, other):
+    def use_card(self):
+        for e in self.effects:
+            match e[2]:
+                case "enemy":
+                    enemy = status_manager.enemy[status_manager.enemy_ptr]
+                    enemy.effects.append(e[0](enemy, e[1]))
+        status_manager.check_effect()
+        for e in self.owner.effects:
+            e.on_action()
