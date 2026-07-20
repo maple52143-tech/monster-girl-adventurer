@@ -4,6 +4,7 @@ import arcade
 
 from src.core.resource_manager import res_manager
 from src.core.status_manager import status_manager
+from src.core.illustration_manager import illu_manager
 
 class Card(arcade.Sprite):
     def __init__(self, name: str, owner):
@@ -24,3 +25,4 @@ class Card(arcade.Sprite):
         status_manager.check_effect()
         for e in self.owner.effects:
             e.on_action()
+        illu_manager.change_illu("no", self.owner, 0.5, "attack")

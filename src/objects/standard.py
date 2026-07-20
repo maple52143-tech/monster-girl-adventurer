@@ -19,6 +19,19 @@ class StandardSet:
 
     def delete_sprite(self, sprite: arcade.Sprite):
         self.sprites.remove(sprite)
+        self.parts.pop(self._find_sprite(sprite))
+
+    def change_sprite(self, old_sprite: arcade.Sprite, new_sprite: arcade.Sprite):
+        self.sprites.remove(old_sprite)
+        self.sprites.append(new_sprite)
+        self.parts[self._find_sprite(old_sprite)][0] = new_sprite
+        self.update_position()
+
+    def _find_sprite(self, sprite: arcade.Sprite):
+        for i, s in enumerate(self.parts):
+            if sprite in s:
+                return i
+        return None
 
     def update_position(self):
         dx, dy = 0, 0

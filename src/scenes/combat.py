@@ -2,9 +2,11 @@ import arcade
 
 from src.core.settings import SCREEN_WIDTH, SCREEN_HEIGHT
 from src.core.status_manager import status_manager
+from src.core.illustration_manager import illu_manager
 
 from src.objects.status_block import StatusBlock
 from src.objects.character import Character
+from src.objects.character_block import CharacterBlock
 from src.objects.deck import Deck
 
 
@@ -17,10 +19,13 @@ class Combat(arcade.View):
         self.pointer = 0
         self.character = [Character("meowm")]
         self.imagine_enemy = [Character("grassland_slime")]
-        self.status_blocks = [StatusBlock(0, SCREEN_HEIGHT, self.character[0])]
-        self.deck = Deck(self.character[self.pointer], SCREEN_WIDTH / 2, 0)
 
         status_manager.combat = [self.character, self.imagine_enemy]
+        illu_manager.combat = [self.character, self.imagine_enemy]
+
+        self.status_blocks = [StatusBlock(0, SCREEN_HEIGHT, self.character[0])]
+        self.character_blocks = [CharacterBlock(SCREEN_WIDTH * 0.3, SCREEN_HEIGHT / 2, self.character[0])]
+        self.deck = Deck(self.character[self.pointer], SCREEN_WIDTH / 2, 0)
 
     def on_show_view(self) -> None:
         self.background_color = arcade.csscolor.BLACK
@@ -28,7 +33,10 @@ class Combat(arcade.View):
     def on_update(self, delta_time: float) -> bool | None:
         for s in self.status_blocks:
             s.update()
+        for c in self.character_blocks:
+            c.update()
         self.deck.update()
+        illu_manager.update(delta_time)
 
     def on_mouse_motion(self, x: int, y: int, dx: int, dy: int) -> bool | None:
         for card in self.deck.hand[::-1]:
@@ -51,5 +59,7 @@ class Combat(arcade.View):
         self.sprites.draw()
         for s in self.status_blocks:
             s.draw()
+        for c in self.character_blocks:
+            c.draw()
         self.deck.draw()
         arcade.draw_text(f"health: {self.imagine_enemy[0].hp}", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, font_size=20)

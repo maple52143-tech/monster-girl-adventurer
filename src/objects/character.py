@@ -1,3 +1,4 @@
+import os
 import arcade
 
 from src.core.resource_manager import res_manager
@@ -7,6 +8,11 @@ from src.objects.card import Card
 class Character:
     def __init__(self, name):
         self.illustration = res_manager.image(f"illustration_{name}")
+        self.combat_illu = {
+            "normal": res_manager.image("normal", os.path.join("combat", name)),
+            "attack": res_manager.image("attack", os.path.join("combat", name)),
+            "low_health": res_manager.image("low_health", os.path.join("combat", name)),
+        }
         self.avatar = res_manager.image(f"avatar_{name}")
 
         self.data, self.type = res_manager.data(name)

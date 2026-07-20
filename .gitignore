@@ -219,3 +219,6 @@ __marimo__/
 
 # PyCharm IDE configuration files
 .idea/
+
+# Draft images and other
+draft/

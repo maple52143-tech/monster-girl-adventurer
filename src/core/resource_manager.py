@@ -4,6 +4,8 @@ from pathlib import Path
 from functools import lru_cache
 import os
 import json
+from typing import LiteralString
+
 import arcade
 
 from src.core.settings import HOME
@@ -22,8 +24,8 @@ class ResourceManager:
     def __init__(self):
         self.res_dir = os.path.join(Path(__file__).resolve().parent.parent.parent, "assets")
 
-    def image(self, name: str):
-        file = search_res(Path(os.path.join(self.res_dir, "images")), name)
+    def image(self, name: str, other_dir: LiteralString = ""):
+        file = search_res(Path(os.path.join(self.res_dir, "images", other_dir)), name)
         if file is None:
             raise FileNotFoundError(f"图片文件不存在: {name}")
 
