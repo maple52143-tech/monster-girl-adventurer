@@ -3,6 +3,7 @@ import arcade
 from src.core.settings import SCREEN_WIDTH, SCREEN_HEIGHT
 from src.core.status_manager import status_manager
 from src.core.illustration_manager import illu_manager
+from src.core.plot_manager import plot_manager
 
 from src.objects.status_block import StatusBlock
 from src.objects.character import Character
@@ -27,6 +28,8 @@ class Combat(arcade.View):
         self.character_blocks = [CharacterBlock(SCREEN_WIDTH * 0.3, SCREEN_HEIGHT / 2, self.character[0])]
         self.deck = Deck(self.character[self.pointer], SCREEN_WIDTH / 2, 0)
 
+        plot_manager.title("test")
+
     def on_show_view(self) -> None:
         self.background_color = arcade.csscolor.BLACK
 
@@ -37,13 +40,14 @@ class Combat(arcade.View):
             c.update()
         self.deck.update()
         illu_manager.update(delta_time)
+        plot_manager.update(delta_time)
 
     def on_mouse_motion(self, x: int, y: int, dx: int, dy: int) -> bool | None:
         for card in self.deck.hand[::-1]:
             if card.collides_with_point((x, y)):
-                self.deck.sprites.remove(card)
-                self.deck.sprites.append(card)
-                return
+                self.deck.sprites['default'].remove(card)
+                self.deck.sprites['default'].append(card)
+                break
 
     def on_mouse_press(self, x: int, y: int, button: int, modifiers: int) -> bool | None:
         for card in self.deck.hand[::-1]:
@@ -52,7 +56,7 @@ class Combat(arcade.View):
                 self.deck.hand.remove(card)
 
                 self.deck.update_card()
-                return
+                break
 
     def on_draw(self) -> bool | None:
         self.clear()
@@ -62,4 +66,6 @@ class Combat(arcade.View):
         for c in self.character_blocks:
             c.draw()
         self.deck.draw()
-        arcade.draw_text(f"health: {self.imagine_enemy[0].hp}", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, font_size=20)
+        arcade.draw_text(f"health: {self.imagine_enemy[0].hp}", SCREEN_WIDTH / 10 * 7, SCREEN_HEIGHT / 2, font_size=20)
+        for s in plot_manager.show:
+            s.draw()

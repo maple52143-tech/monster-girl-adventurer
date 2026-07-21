@@ -41,6 +41,19 @@ class StatusManager:
             raise ValueError(f"这里站不下这么多敌人: {value}")
         self._enemy_pointer = value
 
+    def _find_char(self, who):
+        try:
+            return "team", self.team.index(who)
+        except:
+            return "enemy", self.enemy.index(who)
+
+    def get_character(self, who):
+        t, id = self._find_char(who)
+        if t == 'team':
+            return self.team[id]
+        else:
+            return self.enemy[id]
+
     def check_effect(self):
         for t in self.team:
             for e in t.effects:

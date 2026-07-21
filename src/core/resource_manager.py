@@ -70,7 +70,8 @@ class ResourceManager:
         spec.loader.exec_module(module)
 
         for name, obj in inspect.getmembers(module, inspect.isclass):
-            return obj
+            if "Effect" in obj.__name__:
+                return obj
 
         return None
 

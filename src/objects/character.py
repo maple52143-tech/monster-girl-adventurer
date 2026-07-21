@@ -42,11 +42,19 @@ class Character:
 
     @hp.setter
     def hp(self, value):
-        if value < 0 and self.type != "enemy":
-            self._hp = 0
-            self.on_death()
+        if value < self._hp and self.shield > 0:
+            t = self._hp - value
+            if t > self.shield:
+                self._hp -= t - self.shield
+                self.shield = 0.0
+            else:
+                self.shield -= t
         else:
             self._hp = value
+
+        if self._hp < 0 and self.type != "enemy":
+            self._hp = 0
+            self.on_death()
 
     def on_death(self):
         pass

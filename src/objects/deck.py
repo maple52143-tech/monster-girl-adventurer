@@ -49,7 +49,7 @@ class Deck(StandardSet):
 
     def update_card(self):
         self.card_pos = circle_calc(self.hand, 0.2, 0.8)
-        self.sprites = arcade.SpriteList()
+        self.sprites['default'].clear()
         for i, h in enumerate(self.hand):
             self.add_sprite(h, self.card_pos[i, 0], self.card_pos[i, 1], self.card_pos[i, 2])
         self.update_position()

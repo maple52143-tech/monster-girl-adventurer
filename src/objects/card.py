@@ -22,6 +22,9 @@ class Card(arcade.Sprite):
                 case "enemy":
                     enemy = status_manager.enemy[status_manager.enemy_ptr]
                     enemy.effects.append(e[0](enemy, e[1]))
+                case "self":
+                    print(e)
+                    self.owner.effects.append(e[0](self.owner, e[1]))
         status_manager.check_effect()
         for e in self.owner.effects:
             e.on_action()

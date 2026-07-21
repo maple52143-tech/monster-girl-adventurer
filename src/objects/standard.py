@@ -3,7 +3,8 @@ import arcade
 
 class StandardSet:
     def __init__(self, x, y, anchor_x: str, anchor_y: str, size: tuple[float, float]):
-        self.sprites = arcade.SpriteList()
+        self.sprites = arcade.Scene()
+        self.sprites.add_sprite_list("default")
         self.x = x
         self.y = y
         self.anchor_x = anchor_x
@@ -13,17 +14,17 @@ class StandardSet:
         self.parts: list[list[arcade.Sprite | float]] = []
         self.is_moving = True
 
-    def add_sprite(self, sprite: arcade.Sprite, x: float, y: float, angle: float = 0):
+    def add_sprite(self, sprite: arcade.Sprite, x: float, y: float, angle: float = 0, list_name = "default"):
         self.parts.append([sprite, x, y, angle])
-        self.sprites.append(sprite)
+        self.sprites.add_sprite(list_name, sprite)
 
-    def delete_sprite(self, sprite: arcade.Sprite):
-        self.sprites.remove(sprite)
+    def delete_sprite(self, sprite: arcade.Sprite, list_name = "default"):
+        self.sprites[list_name].remove(sprite)
         self.parts.pop(self._find_sprite(sprite))
 
-    def change_sprite(self, old_sprite: arcade.Sprite, new_sprite: arcade.Sprite):
-        self.sprites.remove(old_sprite)
-        self.sprites.append(new_sprite)
+    def change_sprite(self, old_sprite: arcade.Sprite, new_sprite: arcade.Sprite, list_name = "default"):
+        self.sprites[list_name].remove(old_sprite)
+        self.sprites.add_sprite(list_name, new_sprite)
         self.parts[self._find_sprite(old_sprite)][0] = new_sprite
         self.update_position()
 
