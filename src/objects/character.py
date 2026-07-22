@@ -1,4 +1,5 @@
 import os
+from collections import deque
 import arcade
 
 from src.core.resource_manager import res_manager
@@ -32,9 +33,11 @@ class Character:
         self.cards = [Card(i, self) for i in self.data['initial_deck']]
 
         self.draw_pile = self.cards[:]
-        self.hand = self.draw_pile[:]
 
         self.shield = 0.0
+
+        if self.type == 'enemy':
+            self.skills = deque([Card(i, self) for i in self.data['skills']])
 
     @property
     def hp(self):

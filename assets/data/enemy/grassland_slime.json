@@ -15,7 +15,8 @@
   },
   "initial_deck": ["attack"],
   "initial_status": {
-      "max_hp": 0.0,
+      "max_hp": 40.0,
       "max_mp": 8.0
-  }
+  },
+  "skills": ["mucus_strike"]
 }

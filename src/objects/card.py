@@ -1,5 +1,3 @@
-from pathlib import Path
-import os
 import arcade
 
 from src.core.resource_manager import res_manager
@@ -23,9 +21,14 @@ class Card(arcade.Sprite):
                     enemy = status_manager.enemy[status_manager.enemy_ptr]
                     enemy.effects.append(e[0](enemy, e[1]))
                 case "self":
-                    print(e)
                     self.owner.effects.append(e[0](self.owner, e[1]))
+                case "team":
+                    team = status_manager.team[status_manager.team_ptr]
+                    team.effects.append(e[0](team, e[1]))
         status_manager.check_effect()
         for e in self.owner.effects:
             e.on_action()
-        illu_manager.change_illu("no", self.owner, 0.5, "attack")
+        illu_manager.change_illu("no", self.owner, 0.6, "attack")
+        if self.owner.type == 'character':
+            self.owner.hand.remove(self)
+            self.owner.discard_pile.append(self)

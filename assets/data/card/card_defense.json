@@ -3,5 +3,8 @@
   "intro": "增加5点格挡。",
   "effect": {
     "defense": [5, "self"]
+  },
+  "properties": {
+
   }
 }

@@ -37,19 +37,22 @@ class Deck(StandardSet):
 
         self.card_width = 120
         self.card_height = 160
-        self.hand = character.hand
+        self.character = character
         self.radius = 0
 
         self.card_pos: np.ndarray = None
         self.update_card()
 
+    @property
+    def hand(self):
+        return self.character.hand
+
     def update(self):
-        if self.is_moving:
-            circle_calc(self.hand, 0.2, 0.8)
+        self.update_card()
 
     def update_card(self):
-        self.card_pos = circle_calc(self.hand, 0.2, 0.8)
+        self.card_pos = circle_calc(self.character.hand, 0.2, 0.8)
         self.sprites['default'].clear()
-        for i, h in enumerate(self.hand):
+        for i, h in enumerate(self.character.hand):
             self.add_sprite(h, self.card_pos[i, 0], self.card_pos[i, 1], self.card_pos[i, 2])
         self.update_position()

@@ -4,6 +4,7 @@ from src.core.settings import SCREEN_WIDTH, SCREEN_HEIGHT
 from src.core.status_manager import status_manager
 from src.core.illustration_manager import illu_manager
 from src.core.plot_manager import plot_manager
+from src.core.combat_manager import combat_manager
 
 from src.objects.status_block import StatusBlock
 from src.objects.character import Character
@@ -23,12 +24,12 @@ class Combat(arcade.View):
 
         status_manager.combat = [self.character, self.imagine_enemy]
         illu_manager.combat = [self.character, self.imagine_enemy]
+        combat_manager.combat = [self.character, self.imagine_enemy]
 
         self.status_blocks = [StatusBlock(0, SCREEN_HEIGHT, self.character[0])]
-        self.character_blocks = [CharacterBlock(SCREEN_WIDTH * 0.3, SCREEN_HEIGHT / 2, self.character[0])]
+        self.character_blocks = [CharacterBlock(SCREEN_WIDTH * 0.3, SCREEN_HEIGHT / 2, self.character[0]),
+                                 CharacterBlock(SCREEN_WIDTH * 0.7, SCREEN_HEIGHT / 2, self.imagine_enemy[0])]
         self.deck = Deck(self.character[self.pointer], SCREEN_WIDTH / 2, 0)
-
-        plot_manager.title("test")
 
     def on_show_view(self) -> None:
         self.background_color = arcade.csscolor.BLACK
@@ -41,22 +42,22 @@ class Combat(arcade.View):
         self.deck.update()
         illu_manager.update(delta_time)
         plot_manager.update(delta_time)
+        combat_manager.update()
 
     def on_mouse_motion(self, x: int, y: int, dx: int, dy: int) -> bool | None:
         for card in self.deck.hand[::-1]:
             if card.collides_with_point((x, y)):
-                self.deck.sprites['default'].remove(card)
-                self.deck.sprites['default'].append(card)
                 break
 
     def on_mouse_press(self, x: int, y: int, button: int, modifiers: int) -> bool | None:
         for card in self.deck.hand[::-1]:
             if card.collides_with_point((x, y)):
                 card.use_card()
-                self.deck.hand.remove(card)
-
-                self.deck.update_card()
                 break
+
+    def on_key_press(self, symbol: int, modifiers: int) -> bool | None:
+        if symbol == arcade.key.G:
+            combat_manager.new_round()
 
     def on_draw(self) -> bool | None:
         self.clear()
