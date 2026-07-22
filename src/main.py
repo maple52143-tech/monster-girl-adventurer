@@ -7,7 +7,7 @@ from src.core.game_window import GameWindow
 
 arcade.resources.add_resource_handle("assets", os.path.join(Path(__file__).resolve().parent.parent, "assets"))
 
-import core.settings as settings
+import src.core.settings as settings
 
 def main():
     window = GameWindow(settings.SCREEN_WIDTH, settings.SCREEN_HEIGHT, "Monster Girl Adventurer")
