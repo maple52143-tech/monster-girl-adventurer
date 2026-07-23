@@ -14,6 +14,17 @@ class Card(arcade.Sprite):
         for name, value in self.data['effect'].items():
             self.effects.append([res_manager.effect(name), value[0], value[1]])
 
+        self.is_touched = False
+        self.delegate = []
+        self.ori_scale = 0.13
+        self.curr_scale = self.ori_scale
+        self.touch_scale = 0
+        self.select_scale = 0
+
+    def init(self):
+        self.delegate = []
+        self.scale = self.ori_scale
+
     def use_card(self):
         for e in self.effects:
             match e[2]:
@@ -32,3 +43,14 @@ class Card(arcade.Sprite):
         if self.owner.type == 'character':
             self.owner.hand.remove(self)
             self.owner.discard_pile.append(self)
+
+    def update(self, delta_time: float = 1 / 60, *args, **kwargs) -> None:
+        self.curr_scale = self.ori_scale + self.touch_scale + self.select_scale
+        if self.ori_scale - 0.02 <= self.curr_scale <= self.ori_scale + 0.07:
+            self.scale = self.curr_scale
+        else:
+            self.curr_scale = self.ori_scale
+            self.scale = self.curr_scale
+        for d in self.delegate:
+            if d.update(delta_time):
+                self.delegate.remove(d)

@@ -1,3 +1,4 @@
+from psygnal.containers import SelectableEventedList
 
 from src.core.plot_manager import plot_manager
 
@@ -27,7 +28,7 @@ class CombatManager:
 
         for c in self.team:
             c.draw_pile = c.cards[:]
-            c.hand = []
+            c.hand.clear()
             c.discard_pile = []
 
     @combat.deleter
@@ -55,7 +56,7 @@ class CombatManager:
         self.next_round = True
         for who in self.team:
             who.discard_pile.extend(who.hand[:])
-            who.hand = []
+            who.hand.clear()
         for who in self.enemy:
             skill = who.skills.popleft()
             skill.use_card()

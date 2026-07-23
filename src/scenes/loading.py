@@ -3,7 +3,6 @@ from arcade.future.light import Light, LightLayer
 
 from src.core.resource_manager import res_manager
 from src.core.settings import SCREEN_WIDTH, SCREEN_HEIGHT
-from src.scenes.menu import Menu
 from src.core.game_window import GameWindow
 
 class Loading(arcade.View):

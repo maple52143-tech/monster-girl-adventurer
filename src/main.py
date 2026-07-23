@@ -2,7 +2,7 @@ from pathlib import Path
 import os
 import arcade
 
-from src.scenes.loading import Loading
+
 from src.core.game_window import GameWindow
 
 arcade.resources.add_resource_handle("assets", os.path.join(Path(__file__).resolve().parent.parent, "assets"))

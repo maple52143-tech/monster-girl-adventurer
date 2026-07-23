@@ -39,21 +39,29 @@ class Combat(arcade.View):
             s.update()
         for c in self.character_blocks:
             c.update()
-        self.deck.update()
+        self.deck.update(delta_time)
         illu_manager.update(delta_time)
         plot_manager.update(delta_time)
         combat_manager.update()
 
     def on_mouse_motion(self, x: int, y: int, dx: int, dy: int) -> bool | None:
+        card_touched = False
         for card in self.deck.hand[::-1]:
             if card.collides_with_point((x, y)):
+                self.deck.touched = card
+                card_touched = True
                 break
+        if not card_touched:
+            self.deck.touched = None
 
     def on_mouse_press(self, x: int, y: int, button: int, modifiers: int) -> bool | None:
         for card in self.deck.hand[::-1]:
-            if card.collides_with_point((x, y)):
-                card.use_card()
+            if card.collides_with_point((x, y)) and button == arcade.MOUSE_BUTTON_LEFT:
+                self.deck.selected = card
                 break
+
+        if button == arcade.MOUSE_BUTTON_RIGHT:
+            self.deck.selected = None
 
     def on_key_press(self, symbol: int, modifiers: int) -> bool | None:
         if symbol == arcade.key.G:

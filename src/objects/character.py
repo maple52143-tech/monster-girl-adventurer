@@ -1,5 +1,6 @@
 import os
 from collections import deque
+from psygnal.containers import SelectableEventedList
 import arcade
 
 from src.core.resource_manager import res_manager
@@ -27,7 +28,7 @@ class Character:
         self.effects = []
         self.cards: list[Card] = []
         self.discard_pile = []  # 弃牌堆
-        self.hand: list[Card] = []
+        self.hand: SelectableEventedList[Card] = SelectableEventedList()
         self.draw_pile = []  # 摸牌堆
 
         self.cards = [Card(i, self) for i in self.data['initial_deck']]
