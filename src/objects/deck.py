@@ -8,6 +8,7 @@ from src.objects.card import Card
 from src.objects.character import Character
 from src.core.settings import SCREEN_WIDTH, SCREEN_HEIGHT
 from src.tools.timer import Motion
+from src.tools.math_func import triple_easing as qua
 
 
 def circle_calc(hand: SelectableEventedList[Card], delta_h: float, delta_w: float):
@@ -72,10 +73,11 @@ class Deck(StandardSet):
             return
 
         if self._selected is not None:
-            self._selected.delegate.append(Motion(0.15, self._selected, "select_scale",
-                                                  0.02, 0))
+            self._selected.delegate.append(Motion(0.3, self._selected, "select_scale",
+                                                  0.02, 0, motion_func=qua))
         if value is not None:
-            value.delegate.append(Motion(0.15, value, "select_scale", 0, 0.02))
+            value.delegate.append(Motion(0.25, value, "select_scale",
+                                         0, 0.02, motion_func=qua))
 
         self._selected = value
 
@@ -89,9 +91,11 @@ class Deck(StandardSet):
             return
 
         if self._touched is not None:
-            self._touched.delegate.append(Motion(0.1, self._touched, "touch_scale",0.01, 0))
+            self._touched.delegate.append(Motion(0.1, self._touched, "touch_scale",
+                                                 0.01, 0, qua))
         if value is not None:
-            value.delegate.append(Motion(0.1, value, "touch_scale", 0, 0.01))
+            value.delegate.append(Motion(0.1, value, "touch_scale",
+                                         0, 0.01, qua))
 
         self._touched = value
 

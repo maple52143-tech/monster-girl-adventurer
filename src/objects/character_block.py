@@ -7,7 +7,7 @@ from src.core.illustration_manager import illu_manager
 class CharacterBlock(StandardSet):
 
     def __init__(self, x, y, character: Character):
-        super().__init__(x, y, "center", "center", (100, 100))
+        super().__init__(x, y, "center", "bottom", (100, 100))
         self.character = character
         self.illu = illu_manager.get_illu(self.character)
         self.add_sprite(self.illu, 0, 0, 0)

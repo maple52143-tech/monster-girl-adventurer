@@ -1,4 +1,6 @@
+from psygnal.containers import EventedList
 import arcade
+import pyglet
 
 from src.core.settings import SCREEN_WIDTH, SCREEN_HEIGHT
 from src.core.status_manager import status_manager
@@ -9,7 +11,9 @@ from src.core.combat_manager import combat_manager
 from src.objects.status_block import StatusBlock
 from src.objects.character import Character
 from src.objects.character_block import CharacterBlock
+from src.objects.combat_show import CombatShow
 from src.objects.deck import Deck
+from src.objects.select_arrow import SelectArrow
 
 
 class Combat(arcade.View):
@@ -19,30 +23,35 @@ class Combat(arcade.View):
         self.sprites = arcade.SpriteList()
 
         self.pointer = 0
-        self.character = [Character("meowm")]
-        self.imagine_enemy = [Character("grassland_slime")]
+        self.character = EventedList([Character("meowm")])
+        self.imagine_enemy = EventedList([Character("grassland_slime"), Character("grassland_slime")])
 
         status_manager.combat = [self.character, self.imagine_enemy]
         illu_manager.combat = [self.character, self.imagine_enemy]
         combat_manager.combat = [self.character, self.imagine_enemy]
 
-        self.status_blocks = [StatusBlock(0, SCREEN_HEIGHT, self.character[0])]
-        self.character_blocks = [CharacterBlock(SCREEN_WIDTH * 0.3, SCREEN_HEIGHT / 2, self.character[0]),
-                                 CharacterBlock(SCREEN_WIDTH * 0.7, SCREEN_HEIGHT / 2, self.imagine_enemy[0])]
+        # self.status_blocks = [StatusBlock(0, SCREEN_HEIGHT, self.character[0])]
+        # self.character_blocks = [CharacterBlock(SCREEN_WIDTH * 0.3, SCREEN_HEIGHT / 2, self.character[0]),
+        #                          CharacterBlock(SCREEN_WIDTH * 0.7, SCREEN_HEIGHT / 2, self.imagine_enemy[0])]
+        self.combat_show = CombatShow(self.character, self.imagine_enemy)
         self.deck = Deck(self.character[self.pointer], SCREEN_WIDTH / 2, 0)
+        self.batch = pyglet.graphics.Batch()
+        self.arrow = SelectArrow(self.deck, self.batch)
 
     def on_show_view(self) -> None:
         self.background_color = arcade.csscolor.BLACK
 
     def on_update(self, delta_time: float) -> bool | None:
-        for s in self.status_blocks:
-            s.update()
-        for c in self.character_blocks:
-            c.update()
+        # for s in self.status_blocks:
+        #     s.update()
+        # for c in self.character_blocks:
+        #     c.update()
+        self.combat_show.update()
         self.deck.update(delta_time)
         illu_manager.update(delta_time)
         plot_manager.update(delta_time)
         combat_manager.update()
+
 
     def on_mouse_motion(self, x: int, y: int, dx: int, dy: int) -> bool | None:
         card_touched = False
@@ -54,7 +63,14 @@ class Combat(arcade.View):
         if not card_touched:
             self.deck.touched = None
 
+        if self.deck.selected is not None:
+            self.combat_show.select(x)
+
+        self.arrow.update(x, y)
+
     def on_mouse_press(self, x: int, y: int, button: int, modifiers: int) -> bool | None:
+        if button == arcade.MOUSE_BUTTON_LEFT and self.deck.selected is not None:
+            self.deck.selected = self.deck.selected
         for card in self.deck.hand[::-1]:
             if card.collides_with_point((x, y)) and button == arcade.MOUSE_BUTTON_LEFT:
                 self.deck.selected = card
@@ -69,12 +85,15 @@ class Combat(arcade.View):
 
     def on_draw(self) -> bool | None:
         self.clear()
+        if self.arrow.visible:
+            self.batch.draw()
         self.sprites.draw()
-        for s in self.status_blocks:
-            s.draw()
-        for c in self.character_blocks:
-            c.draw()
+        # for s in self.status_blocks:
+        #     s.draw()
+        # for c in self.character_blocks:
+        #     c.draw()
+        self.combat_show.draw()
         self.deck.draw()
-        arcade.draw_text(f"health: {self.imagine_enemy[0].hp}", SCREEN_WIDTH / 10 * 7, SCREEN_HEIGHT / 2, font_size=20)
+        # arcade.draw_text(f"health: {self.imagine_enemy[0].hp}", SCREEN_WIDTH / 10 * 7, SCREEN_HEIGHT / 2, font_size=20)
         for s in plot_manager.show:
             s.draw()

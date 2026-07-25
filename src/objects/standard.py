@@ -5,13 +5,29 @@ class StandardSet:
     def __init__(self, x, y, anchor_x: str, anchor_y: str, size: tuple[float, float]):
         self.sprites = arcade.Scene()
         self.sprites.add_sprite_list("default")
-        self.x = x
-        self.y = y
+        self._x = x
+        self._y = y
         self.anchor_x = anchor_x
         self.anchor_y = anchor_y
         self.size = size
 
         self.parts: list[list[arcade.Sprite | float]] = []
+        self.is_moving = True
+
+    @property
+    def x(self):
+        return self._x
+    @x.setter
+    def x(self, value):
+        self._x = value
+        self.is_moving = True
+
+    @property
+    def y(self):
+        return self._y
+    @y.setter
+    def y(self, value):
+        self._y = value
         self.is_moving = True
 
     def add_sprite(self, sprite: arcade.Sprite, x: float, y: float, angle: float = 0, list_name = "default"):
@@ -46,8 +62,8 @@ class StandardSet:
             case "center": dy = -self.size[1] / 2
 
         for s in self.parts:
-            s[0].center_x = s[1] + self.x + dx
-            s[0].center_y = s[2] + self.y + dy
+            s[0].center_x = s[1] + self._x + dx
+            s[0].center_y = s[2] + self._y + dy
             s[0].angle = s[3]
 
     def draw(self):
