@@ -41,7 +41,7 @@ def circle_calc(hand: SelectableEventedList[Card], delta_h: float, delta_w: floa
 class Deck(StandardSet):
     def __init__(self, character: Character, x, y):
         super().__init__(x, y, "middle", "bottom", (SCREEN_WIDTH, SCREEN_HEIGHT))
-
+        self.sprites.add_sprite_list('selected')
         self.card_width = 120
         self.card_height = 160
         self.character = character
@@ -107,11 +107,21 @@ class Deck(StandardSet):
     def update_card(self):
         self.card_pos = circle_calc(self.character.hand, 0.2, 0.8)
         self.sprites['default'].clear()
+        self.sprites['selected'].clear()
         for i, h in enumerate(self.character.hand):
             if h != self.selected:
                 self.add_sprite(h, self.card_pos[i, 0], self.card_pos[i, 1], self.card_pos[i, 2])
         if self._selected is not None:
             i = self.character.hand.index(self._selected)
-            self.add_sprite(self.character.hand[i], self.card_pos[i, 0], self.card_pos[i, 1], self.card_pos[i, 2])
+            self.add_sprite(self.character.hand[i], self.card_pos[i, 0], self.card_pos[i, 1], self.card_pos[i, 2], "selected")
 
         self.update_position()
+
+    def draw(self):
+        if self.is_moving:
+            self.update_position()
+            self.is_moving = False
+        self.sprites['default'].draw()
+
+    def draw_selected(self):
+        self.sprites['selected'].draw()

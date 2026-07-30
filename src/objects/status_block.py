@@ -9,7 +9,7 @@ class StatusBlock(StandardSet):
     def __init__(self, x: float, y: float, character: Character):
         avatar_size = 84
         hp_bar_size = 0.15
-        super().__init__(x, y, "left", "top", (300, avatar_size))
+        super().__init__(x, y, "left", "top", (264, avatar_size))
 
         self.avatar = arcade.Sprite(character.avatar, scale=0.07)
         self.add_sprite(self.avatar, self.avatar.width / 2, self.avatar.height / 2)

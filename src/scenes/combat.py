@@ -1,5 +1,7 @@
 from psygnal.containers import EventedList
 import arcade
+from arcade.experimental import Shadertoy
+from arcade.gl.framebuffer import Framebuffer
 import pyglet
 
 from src.core.settings import SCREEN_WIDTH, SCREEN_HEIGHT
@@ -7,17 +9,15 @@ from src.core.status_manager import status_manager
 from src.core.illustration_manager import illu_manager
 from src.core.plot_manager import plot_manager
 from src.core.combat_manager import combat_manager
+from src.core.resource_manager import res_manager
 
-from src.objects.status_block import StatusBlock
 from src.objects.character import Character
-from src.objects.character_block import CharacterBlock
 from src.objects.combat_show import CombatShow
 from src.objects.deck import Deck
 from src.objects.select_arrow import SelectArrow
 
 
 class Combat(arcade.View):
-
     def __init__(self, window: arcade.Window):
         super().__init__(window=window)
         self.sprites = arcade.SpriteList()
@@ -30,22 +30,38 @@ class Combat(arcade.View):
         illu_manager.combat = [self.character, self.imagine_enemy]
         combat_manager.combat = [self.character, self.imagine_enemy]
 
-        # self.status_blocks = [StatusBlock(0, SCREEN_HEIGHT, self.character[0])]
-        # self.character_blocks = [CharacterBlock(SCREEN_WIDTH * 0.3, SCREEN_HEIGHT / 2, self.character[0]),
-        #                          CharacterBlock(SCREEN_WIDTH * 0.7, SCREEN_HEIGHT / 2, self.imagine_enemy[0])]
+
         self.combat_show = CombatShow(self.character, self.imagine_enemy)
         self.deck = Deck(self.character[self.pointer], SCREEN_WIDTH / 2, 0)
         self.batch = pyglet.graphics.Batch()
         self.arrow = SelectArrow(self.deck, self.batch)
 
+        # 实验性添加着色器渲染
+        self.shadertoy: Shadertoy = None
+        self.channel0: Framebuffer = None
+        self.channel1: Framebuffer = None
+        self.load_shader()
+
+    def load_shader(self):
+        window_size = self.window.size
+        print(window_size)
+
+        self.shadertoy = Shadertoy(window_size, res_manager.shader("selected_card"))
+
+        self.channel0 = self.shadertoy.ctx.framebuffer(
+            color_attachments=[self.shadertoy.ctx.texture(window_size, components=4)]
+        )
+        self.channel1 = self.shadertoy.ctx.framebuffer(
+            color_attachments=[self.shadertoy.ctx.texture(window_size, components=4)]
+        )
+
+        self.shadertoy.channel_0 = self.channel0.color_attachments[0]
+        self.shadertoy.channel_1 = self.channel1.color_attachments[0]
+
     def on_show_view(self) -> None:
         self.background_color = arcade.csscolor.BLACK
 
     def on_update(self, delta_time: float) -> bool | None:
-        # for s in self.status_blocks:
-        #     s.update()
-        # for c in self.character_blocks:
-        #     c.update()
         self.combat_show.update()
         self.deck.update(delta_time)
         illu_manager.update(delta_time)
@@ -84,16 +100,22 @@ class Combat(arcade.View):
             combat_manager.new_round()
 
     def on_draw(self) -> bool | None:
-        self.clear()
+        self.channel0.use()
+        self.channel0.clear(color=arcade.color.BLACK)
+        self.deck.draw_selected()
+
+        # self.channel1.use()
+        # self.channel1.clear(color=arcade.color.BLACK)
         if self.arrow.visible:
             self.batch.draw()
         self.sprites.draw()
-        # for s in self.status_blocks:
-        #     s.draw()
-        # for c in self.character_blocks:
-        #     c.draw()
         self.combat_show.draw()
         self.deck.draw()
+
+        self.window.use()
+        self.clear()
+        self.shadertoy.render()
+        self.deck.draw_selected()
         # arcade.draw_text(f"health: {self.imagine_enemy[0].hp}", SCREEN_WIDTH / 10 * 7, SCREEN_HEIGHT / 2, font_size=20)
         for s in plot_manager.show:
             s.draw()

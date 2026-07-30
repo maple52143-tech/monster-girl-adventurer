@@ -75,6 +75,15 @@ class ResourceManager:
 
         return None
 
+    def shader(self, name: str):
+        shader_file = search_res(Path(os.path.join(self.res_dir, "shaders")), name)
+        if shader_file is None:
+            raise FileNotFoundError(f"着色器文件不存在: {name}")
+
+        with open(shader_file, 'r', encoding='utf-8') as f:
+            shader = f.read()
+        return shader
+
 res_manager = ResourceManager()
 
 

@@ -10,6 +10,7 @@ class Card(arcade.Sprite):
         super().__init__(t, 0.13)
 
         self.owner = owner
+        self.type = self.data['type']
         self.effects = []
         for name, value in self.data['effect'].items():
             self.effects.append([res_manager.effect(name), value[0], value[1]])
@@ -39,7 +40,8 @@ class Card(arcade.Sprite):
         status_manager.check_effect()
         for e in self.owner.effects:
             e.on_action()
-        illu_manager.change_illu("no", self.owner, 0.6, "attack")
+        if self.type == "attack":
+            illu_manager.change_illu("no", self.owner, 0.6, "attack")
         if self.owner.type == 'character':
             self.owner.hand.remove(self)
             self.owner.discard_pile.append(self)

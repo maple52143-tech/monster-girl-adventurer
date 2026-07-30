@@ -30,6 +30,8 @@ class CombatManager:
             c.draw_pile = c.cards[:]
             c.hand.clear()
             c.discard_pile = []
+        for who in self.enemy:
+            who.intention = who.skills[0]['intention']
 
     @combat.deleter
     def combat(self):
@@ -59,8 +61,9 @@ class CombatManager:
             who.hand.clear()
         for who in self.enemy:
             skill = who.skills.popleft()
-            skill.use_card()
+            skill['skill'].use_card()
             who.skills.append(skill)
+            who.intention = who.skills[0]['intention']
 
     def draw_cards(self, num: int, who):
         for _ in range(num):

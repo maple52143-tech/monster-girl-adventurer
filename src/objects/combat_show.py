@@ -15,8 +15,10 @@ class CombatShow:
 
         self.team_chars = [CharacterBlock(0, SCREEN_HEIGHT / 2, c) for c in self.team]
         self.enemy_chars = [CharacterBlock(0, SCREEN_HEIGHT / 2, c) for c in self.enemy]
-        self.team_status = [StatusBlock(0, 0, c) for c in self.team]
-        self.enemy_status = [StatusBlock(SCREEN_WIDTH - 350, 0, c) for c in self.enemy]
+        self.team_status = [StatusBlock(15, 0, c) for c in self.team]
+        self.enemy_status = [StatusBlock(SCREEN_WIDTH - 300, 0, c) for c in self.enemy]
+        for e in self.enemy_status:
+            e.flip = [True, False]
         self._update_position()
 
     def select(self, x):

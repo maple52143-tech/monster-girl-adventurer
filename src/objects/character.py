@@ -25,6 +25,8 @@ class Character:
         self.max_mp = self.data['initial_status']['max_mp']
         self._hp = self.max_hp
         self._mp = self.max_mp / 2
+        self.shield = 0.0
+        self.action_point = 0
         self.effects = []
         self.cards: list[Card] = []
         self.discard_pile = []  # 弃牌堆
@@ -35,10 +37,10 @@ class Character:
 
         self.draw_pile = self.cards[:]
 
-        self.shield = 0.0
-
+        # 敌人角色的出牌顺序和意图
         if self.type == 'enemy':
-            self.skills = deque([Card(i, self) for i in self.data['skills']])
+            self.skills = deque([{'skill': Card(i['skill'], self), 'intention': i['intention']} for i in self.data['skills']])
+        self.intention = None
 
     @property
     def hp(self):

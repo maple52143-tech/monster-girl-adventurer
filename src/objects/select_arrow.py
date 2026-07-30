@@ -93,10 +93,6 @@ class SelectArrow:
             self.visible = True
             x1, y1 = self.deck.selected.center_x, self.deck.selected.center_y
             x2, y2 = x, y
-            x3, y3 = (x1 + x2) / 2, x1 + 30 if x1 > x2 else x2 + 30
-            A = np.array([[x1 ** 2, x1, 1], [x2 ** 2, x2, 1], [x3 ** 2, x3, 1]])
-            b = np.array([y1, y2, y3])
-            X = np.linalg.solve(A, b)
             self.a, self.b, self.c = quadratic_through_points(x1, y1, x2, y2, 20)
 
             for i in range(self.num - 1):
@@ -104,17 +100,9 @@ class SelectArrow:
                 iy = self.a * ix ** 2 + self.b * ix + self.c
                 self.arrow[i].position = (ix, iy)
 
-            angle = -np.arctan(2 * self.a * ix + self.b) / np.pi * 180
-            # self.tri.x = x
-            # self.tri.y = y
-            # self.tri.x2 = self.tri.x3 = x - (3 ** 0.5) * self.max_rad
-            # self.tri.y2 = y + self.max_rad
-            # self.tri.y3 = y - self.max_rad
-            # self.tri.anchor_x = x
-            # self.tri.anchor_y = y
-            # self.tri.rotation = angle
+            angle = -np.arctan((y - self.arrow[-1].y) / (x - self.arrow[-1].x)) / np.pi * 180
             self.tri.position = (x, y)
-            self.tri.rotation = angle
+            self.tri.rotation = angle if angle > 0 else 180 + angle
         else:
             self.visible = False
 

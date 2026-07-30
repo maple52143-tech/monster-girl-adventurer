@@ -13,6 +13,7 @@ class StandardSet:
 
         self.parts: list[list[arcade.Sprite | float]] = []
         self.is_moving = True
+        self.flip = [False, False]
 
     @property
     def x(self):
@@ -62,8 +63,15 @@ class StandardSet:
             case "center": dy = -self.size[1] / 2
 
         for s in self.parts:
-            s[0].center_x = s[1] + self._x + dx
-            s[0].center_y = s[2] + self._y + dy
+            sx = s[1]
+            sy = s[2]
+            s[0].scale = (s[0].scale[0] * (-1 if self.flip[0] and s[0].scale[0] > 0 else 1), s[0].scale[1] * (-1 if self.flip[1] and s[0].scale[1] > 0 else 1))
+            if self.flip[0]:
+                sx = self.size[0] - sx
+            if self.flip[1]:
+                sy = self.size[1] - sy
+            s[0].center_x = sx + self._x + dx
+            s[0].center_y = sy + self._y + dy
             s[0].angle = s[3]
 
     def draw(self):
