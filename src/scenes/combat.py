@@ -35,6 +35,7 @@ class Combat(arcade.View):
         self.deck = Deck(self.character[self.pointer], SCREEN_WIDTH / 2, 0)
         self.batch = pyglet.graphics.Batch()
         self.arrow = SelectArrow(self.deck, self.batch)
+        self.ap_show = arcade.Text("", 100, 100, (255, 255, 255, 255), 30)
 
         # 实验性添加着色器渲染
         self.shadertoy: Shadertoy = None
@@ -67,6 +68,8 @@ class Combat(arcade.View):
         illu_manager.update(delta_time)
         plot_manager.update(delta_time)
         combat_manager.update()
+        self.arrow.update(self.window.mouse['x'], self.window.mouse['y'])
+        self.ap_show.text = str(self.character[status_manager.team_ptr].action_point)
 
 
     def on_mouse_motion(self, x: int, y: int, dx: int, dy: int) -> bool | None:
@@ -81,8 +84,6 @@ class Combat(arcade.View):
 
         if self.deck.selected is not None:
             self.combat_show.select(x)
-
-        self.arrow.update(x, y)
 
     def on_mouse_press(self, x: int, y: int, button: int, modifiers: int) -> bool | None:
         if button == arcade.MOUSE_BUTTON_LEFT and self.deck.selected is not None:
@@ -112,10 +113,11 @@ class Combat(arcade.View):
         self.combat_show.draw()
         self.deck.draw()
 
+        self.ap_show.draw()
+
         self.window.use()
         self.clear()
         self.shadertoy.render()
         self.deck.draw_selected()
-        # arcade.draw_text(f"health: {self.imagine_enemy[0].hp}", SCREEN_WIDTH / 10 * 7, SCREEN_HEIGHT / 2, font_size=20)
         for s in plot_manager.show:
             s.draw()

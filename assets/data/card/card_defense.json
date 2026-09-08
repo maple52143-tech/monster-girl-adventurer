@@ -2,6 +2,7 @@
   "name": "防御",
   "intro": "增加5点格挡。",
   "type": "skill",
+  "action_point": 1,
   "effect": {
     "defense": [5, "self"]
   },

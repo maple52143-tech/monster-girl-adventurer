@@ -30,6 +30,7 @@ class CombatManager:
             c.draw_pile = c.cards[:]
             c.hand.clear()
             c.discard_pile = []
+            c.action_point = 4
         for who in self.enemy:
             who.intention = who.skills[0]['intention']
 
@@ -59,6 +60,7 @@ class CombatManager:
         for who in self.team:
             who.discard_pile.extend(who.hand[:])
             who.hand.clear()
+            who.action_point = 4
         for who in self.enemy:
             skill = who.skills.popleft()
             skill['skill'].use_card()

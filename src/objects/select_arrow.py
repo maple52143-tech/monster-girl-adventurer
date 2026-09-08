@@ -89,6 +89,7 @@ class SelectArrow:
 
 
     def update(self, x, y):
+
         if self.deck.selected is not None:
             self.visible = True
             x1, y1 = self.deck.selected.center_x, self.deck.selected.center_y

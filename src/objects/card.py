@@ -11,6 +11,7 @@ class Card(arcade.Sprite):
 
         self.owner = owner
         self.type = self.data['type']
+        self.ap = self.data['action_point']
         self.effects = []
         for name, value in self.data['effect'].items():
             self.effects.append([res_manager.effect(name), value[0], value[1]])
@@ -27,6 +28,10 @@ class Card(arcade.Sprite):
         self.scale = self.ori_scale
 
     def use_card(self):
+        if self.owner.action_point < self.ap:
+            return
+
+        self.owner.action_point -= self.ap
         for e in self.effects:
             match e[2]:
                 case "enemy":
