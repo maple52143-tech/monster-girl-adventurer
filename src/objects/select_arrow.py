@@ -3,6 +3,7 @@ import math
 import arcade
 import pyglet
 
+from src.core.settings import SCREEN_WIDTH
 from src.objects.standard import StandardSet
 from src.objects.deck import Deck
 
@@ -66,6 +67,7 @@ def quadratic_through_points(x1, y1, x2, y2, d):
     return a, b, c
 
 
+
 class SelectArrow:
     def __init__(self, deck: Deck, batch: pyglet.graphics.Batch):
         self.visible = False
@@ -73,19 +75,32 @@ class SelectArrow:
         self.a = -5 * 10 ** -2
         self.b = 0
         self.c = 0
-        self.arrow: list[pyglet.shapes.Circle] = []
+        self.arrow: dict[str, list[pyglet.shapes.Circle]] = {}
         self.batch = batch
         min_radius = 5
         max_radius = 5
         num = 15
-        for i in range(num):
-            self.arrow.append(pyglet.shapes.Circle(0, 0, min_radius + max_radius / num * (i + 1),
-                                                   color=(111, 111, 111), batch=self.batch))
-        self.max_rad = max_radius + 20
-        self.tri = pyglet.shapes.Triangle(0, 0, -(3 ** 0.5) * self.max_rad, self.max_rad, -(3 ** 0.5) * self.max_rad, -self.max_rad,
-                                          color=(111, 111, 111), batch=self.batch)
-        self.num = num + 1
 
+        self.max_rad = max_radius + 20
+        self.tri: dict[str, pyglet.shapes.Triangle] = {}
+
+        def new_arrow(color:tuple[int, int, int] = (255, 255, 255), name: str = "normal"):
+            if name not in self.arrow:
+                self.arrow[name] = []
+
+            for i in range(num):
+                self.arrow[name].append(pyglet.shapes.Circle(0, 0, min_radius + max_radius / num * (i + 1),
+                                                       color= color, batch=self.batch))
+            self.tri[name] = pyglet.shapes.Triangle(0, 0, -(3 ** 0.5) * self.max_rad, self.max_rad, -(3 ** 0.5) * self.max_rad,
+                                   -self.max_rad,
+                                   color=color, batch=self.batch)
+
+        new_arrow((111, 111, 111), 'normal')
+        new_arrow((255, 108, 63), 'enemy')
+        new_arrow((96, 228, 255), 'team')
+
+        self.num = num + 1
+        self.show_type = 'normal'
 
 
     def update(self, x, y):
@@ -99,15 +114,47 @@ class SelectArrow:
             for i in range(self.num - 1):
                 ix = (x2 - x1) / self.num * i + x1
                 iy = self.a * ix ** 2 + self.b * ix + self.c
-                self.arrow[i].position = (ix, iy)
+                for name in self.arrow.keys():
+                    self.arrow[name][i].position = (ix, iy)
 
-            angle = -np.arctan((y - self.arrow[-1].y) / (x - self.arrow[-1].x)) / np.pi * 180
-            self.tri.position = (x, y)
-            self.tri.rotation = angle if angle > 0 else 180 + angle
+            for name, tri in self.tri.items():
+                last = self.arrow[name][-1]
+                dx, dy = x - last.x, y - last.y
+                length = math.hypot(dx, dy)
+                if length < 1e-6:
+                    continue
+                ux, uy = dx / length, dy / length
+                px, py = -uy, ux  # 垂直方向
+
+                R = self.max_rad
+                H = math.sqrt(3) * R
+                bcx, bcy = x - ux * H, y - uy * H
+
+                tri.x, tri.y = x, y
+                tri.x2, tri.y2 = bcx + px * R, bcy + py * R
+                tri.x3, tri.y3 = bcx - px * R, bcy - py * R
         else:
             self.visible = False
 
+        self.show_type = 'normal'
+        if self.visible:
+            match self.deck.selected.type:
+                case "attack":
+                    if x >= SCREEN_WIDTH / 2:
+                        self.show_type = 'enemy'
+                case "skill":
+                    if x < SCREEN_WIDTH / 2:
+                        self.show_type = 'team'
+
+            for name in self.arrow.keys():
+                if name != self.show_type:
+                    for shape in self.arrow[name]:
+                        shape.batch = None
+                    self.tri[name].batch = None
+                else:
+                    for shape in self.arrow[name]:
+                        shape.batch = self.batch
+                    self.tri[name].batch = self.batch
 
     def draw(self):
-        if self.visible:
-            self.batch.draw()
+        pass
