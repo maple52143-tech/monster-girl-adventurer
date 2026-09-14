@@ -62,5 +62,9 @@ class Character:
             self._hp = 0
             self.on_death()
 
+    @property
+    def mp(self):
+        return self._mp
+
     def on_death(self):
         pass

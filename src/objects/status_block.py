@@ -3,12 +3,13 @@ import arcade
 from src.objects.standard import StandardSet
 from src.objects.character import Character
 from src.core.resource_manager import res_manager
+from src.tools.digit_renderer import DigitRenderer
 
 
 class StatusBlock(StandardSet):
     def __init__(self, x: float, y: float, character: Character):
         avatar_size = 84
-        hp_bar_size = 0.15
+        hp_bar_size = 0.23
         super().__init__(x, y, "left", "top", (264, avatar_size))
 
         self.avatar = arcade.Sprite(character.avatar, scale=0.07)
@@ -33,9 +34,39 @@ class StatusBlock(StandardSet):
         self.character = character
         self.is_chosen = True
 
+        self.mp_text = DigitRenderer('_mp', 0.025, align='left')
+        self.shield_text = DigitRenderer('_mp', 0.025, align='left')
+        self.hp_text = DigitRenderer('_hp', 0.025, align='left')
+
     def update(self):
         self.hp_bar_shield.visible = True if self.character.shield > 0 else False
         self.select.visible = self.is_chosen
         self.bar.width = 870 * self.hp_bar_size * (self.character.hp / self.character.max_hp)
         self.parts[self._find_sprite(self.bar)][1] = self.avatar_size + self.bar.width / 2 + 185 * self.hp_bar_size
+
+
+        tx, ty = self.hp_bar.position
+        self.mp_text.position = (tx + self.hp_bar.width / 2, ty)
+        self.mp_text.digit = int(self.character.mp)
+        self.shield_text.position = (tx - 12, ty)
+        self.shield_text.digit = int(self.character.shield)
+        self.hp_text.position = (tx - self.hp_bar.width / 2 + 15, ty)
+        self.hp_text.digit = int(self.character.hp)
+        if self.character.type == 'character':
+            self.mp_text.visible = True
+            if self.hp_bar_shield.visible:
+                self.shield_text.visible = True
+            else:
+                self.shield_text.visible = False
+        else:
+            self.mp_text.visible = False
+            self.shield_text.visible = False
+
         self.is_moving = True
+
+    def draw(self):
+        super().draw()
+
+        self.mp_text.draw()
+        self.shield_text.draw()
+        self.hp_text.draw()

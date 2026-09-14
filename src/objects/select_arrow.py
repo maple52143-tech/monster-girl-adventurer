@@ -17,7 +17,7 @@ def quadratic_through_points(x1, y1, x2, y2, d):
     if x1 > x2:
         x1, y1, x2, y2 = x2, y2, x1, y1
     elif x1 == x2:
-        raise ValueError("两点横坐标必须不同")
+        x1 -= 0.01
 
     k = max(y1, y2) + d
     A = y1 - k
