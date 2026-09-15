@@ -1,0 +1,8 @@
+{
+  "name": "粘液",
+  "intro": "只是粘液，很粘。",
+  "type": "skill",
+  "action_point": 1,
+  "effect": {
+  }
+}

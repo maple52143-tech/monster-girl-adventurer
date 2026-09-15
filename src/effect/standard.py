@@ -36,6 +36,10 @@ class StandardEffect(ABC):
         """状态被移除时触发"""
         pass
 
+    def on_enemy_turn_end(self):
+        """地方状态结束时触发"""
+        pass
+
     def tick(self):
         """通用回合流逝逻辑：减少持续回合，返回是否已过期"""
         if self.duration <= 0:

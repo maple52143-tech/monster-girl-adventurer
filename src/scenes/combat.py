@@ -67,6 +67,7 @@ class Combat(arcade.View):
         self.deck.update(delta_time)
         illu_manager.update(delta_time)
         plot_manager.update(delta_time)
+        status_manager.update_ptr()
         combat_manager.update()
         self.arrow.update(self.window.mouse['x'], self.window.mouse['y'])
         self.ap_show.text = str(self.character[status_manager.team_ptr].action_point)

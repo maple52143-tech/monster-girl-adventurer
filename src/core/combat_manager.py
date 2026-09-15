@@ -1,6 +1,7 @@
 from psygnal.containers import SelectableEventedList
 
 from src.core.plot_manager import plot_manager
+from src.core.status_manager import status_manager
 
 from src.tools.random_things import *
 
@@ -45,6 +46,10 @@ class CombatManager:
         if not self.is_combat:
             return
 
+        for c in self.enemy:
+            if c.death:
+                self.enemy.remove(c)
+
         if not self.enemy:
             self.on_combat_end()
 
@@ -57,15 +62,19 @@ class CombatManager:
     def new_round(self):
         self.round += 1
         self.next_round = True
-        for who in self.team:
-            who.discard_pile.extend(who.hand[:])
-            who.hand.clear()
-            who.action_point = 4
+        status_manager.on_turn_end("team")
+        status_manager.on_turn_start("enemy")
         for who in self.enemy:
             skill = who.skills.popleft()
             skill['skill'].use_card()
             who.skills.append(skill)
             who.intention = who.skills[0]['intention']
+        status_manager.on_turn_end("enemy")
+        status_manager.on_turn_start("team")
+        for who in self.team:
+            who.discard_pile.extend(who.hand[:])
+            who.hand.clear()
+            who.action_point = 4
 
     def draw_cards(self, num: int, who):
         for _ in range(num):

@@ -44,16 +44,28 @@ class CombatShow:
 
     def update(self):
         for c in self.team_chars:
+            if c.character.death:
+                self.team_chars.remove(c)
+                self._update_position()
             c.update()
         for c in self.team_status:
+            if c.character.death:
+                self.team_status.remove(c)
             c.update()
             c.is_chosen = False
+        status_manager.update_ptr()
         self.team_status[status_manager.team_ptr].is_chosen = True
         for c in self.enemy_chars:
+            if c.character.death:
+                self._update_position()
+                self.enemy_chars.remove(c)
             c.update()
         for c in self.enemy_status:
+            if c.character.death:
+                self.enemy_status.remove(c)
             c.update()
             c.is_chosen = False
+        status_manager.update_ptr()
         self.enemy_status[status_manager.enemy_ptr].is_chosen = True
 
     def draw(self):

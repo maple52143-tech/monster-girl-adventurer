@@ -41,6 +41,12 @@ class StatusManager:
             raise ValueError(f"这里站不下这么多敌人: {value}")
         self._enemy_pointer = value
 
+    def update_ptr(self):
+        if self._team_pointer >= len(self.team):
+            self._team_pointer = 0
+        if self._enemy_pointer >= len(self.enemy):
+            self._enemy_pointer = 0
+
     def _find_char(self, who):
         try:
             return "team", self.team.index(who)
@@ -89,5 +95,11 @@ class StatusManager:
                 e.on_turn_end()
                 if not e.effective:
                     t.effects.remove(e)
+        if who == "enemy":
+            for t in self.team:
+                for e in t.effects:
+                    e.on_enemy_turn_end()
+                    if not e.effective:
+                        t.effects.remove(e)
 
 status_manager = StatusManager()

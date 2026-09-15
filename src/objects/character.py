@@ -34,8 +34,11 @@ class Character:
         self.draw_pile = []  # 摸牌堆
 
         self.cards = [Card(i, self) for i in self.data['initial_deck']]
-
         self.draw_pile = self.cards[:]
+
+        # 局内特殊数据
+        self.is_hurt = False
+        self.death = False
 
         # 敌人角色的出牌顺序和意图
         if self.type == 'enemy':
@@ -53,12 +56,13 @@ class Character:
             if t > self.shield:
                 self._hp -= t - self.shield
                 self.shield = 0.0
+                self.is_hurt = True
             else:
                 self.shield -= t
         else:
             self._hp = value
 
-        if self._hp < 0 and self.type != "enemy":
+        if self._hp < 0:
             self._hp = 0
             self.on_death()
 
@@ -67,4 +71,4 @@ class Character:
         return self._mp
 
     def on_death(self):
-        pass
+        self.death = True
