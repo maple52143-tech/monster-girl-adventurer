@@ -5,6 +5,7 @@ import arcade
 
 from src.core.resource_manager import res_manager
 from src.objects.card import Card
+from src.objects.skill import SkillEntry
 
 
 class Character:
@@ -42,7 +43,8 @@ class Character:
 
         # 敌人角色的出牌顺序和意图
         if self.type == 'enemy':
-            self.skills = deque([{'skill': Card(i['skill'], self), 'intention': i['intention']} for i in self.data['skills']])
+            self.skills = deque([SkillEntry(i['skill'], i['intention'], self)
+                                 for i in self.data['skills']])
         self.intention = None
 
     @property
@@ -51,20 +53,25 @@ class Character:
 
     @hp.setter
     def hp(self, value):
-        if value < self._hp and self.shield > 0:
+        if value < self._hp:
+            # 扣血：先用护盾抵扣，护盾挡下的部分不算“被打到”
             t = self._hp - value
-            if t > self.shield:
+            if t <= self.shield:
+                self.shield -= t
+            else:
                 self._hp -= t - self.shield
                 self.shield = 0.0
                 self.is_hurt = True
-            else:
-                self.shield -= t
         else:
             self._hp = value
 
-        if self._hp < 0:
+        if self._hp <= 0:
             self._hp = 0
             self.on_death()
+
+    @property
+    def alive(self) -> bool:
+        return not self.death
 
     @property
     def mp(self):

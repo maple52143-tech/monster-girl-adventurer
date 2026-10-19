@@ -10,3 +10,6 @@ class DefenseEffect(StandardEffect):
         super().on_apply()
         self.owner.shield += self.defense
         self.tick()
+
+
+EFFECT_CLASS = DefenseEffect

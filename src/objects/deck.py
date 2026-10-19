@@ -7,6 +7,7 @@ from src.objects.standard import StandardSet
 from src.objects.card import Card
 from src.objects.character import Character
 from src.core.settings import SCREEN_WIDTH, SCREEN_HEIGHT
+from src.core.plot_manager import plot_manager
 from src.tools.timer import Motion
 from src.tools.math_func import triple_easing as qua
 
@@ -66,10 +67,19 @@ class Deck(StandardSet):
 
     @selected.setter
     def selected(self, value: Card):
-        if self._selected == value:
-            self._selected.use_card()
-            self._selected.init()
-            self._selected = None
+        if self._selected is None and value is None:
+            return                                  # 本来就没选中，别把 None == None 当成“再次点击打出”
+        if self._selected is not None and self._selected == value:
+            played = self._selected.use_card()
+            if played:
+                self._selected.init()
+                self._selected = None
+            else:
+                # 打不出去：保留选中状态，并给出提示
+                if self._selected.owner.action_point < self._selected.ap:
+                    plot_manager.title("行动点不足", 1.0)
+                else:
+                    plot_manager.title("没有可选的目标", 1.0)
             return
 
         if self._selected is not None:
@@ -108,10 +118,11 @@ class Deck(StandardSet):
         self.card_pos = circle_calc(self.character.hand, 0.2, 0.8)
         self.sprites['default'].clear()
         self.sprites['selected'].clear()
+        self.clear_parts()          # 与 SpriteList 的 clear 同步，否则旧条目会一直累积
         for i, h in enumerate(self.character.hand):
             if h != self.selected:
                 self.add_sprite(h, self.card_pos[i, 0], self.card_pos[i, 1], self.card_pos[i, 2])
-        if self._selected is not None:
+        if self._selected is not None and self._selected in self.character.hand:
             i = self.character.hand.index(self._selected)
             self.add_sprite(self.character.hand[i], self.card_pos[i, 0], self.card_pos[i, 1], self.card_pos[i, 2], "selected")
 
@@ -120,7 +131,6 @@ class Deck(StandardSet):
     def draw(self):
         if self.is_moving:
             self.update_position()
-            self.is_moving = False
         self.sprites['default'].draw()
 
     def draw_selected(self):

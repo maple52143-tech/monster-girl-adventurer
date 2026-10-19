@@ -14,7 +14,9 @@ class Card(arcade.Sprite):
         self.ap = self.data['action_point']
         self.effects = []
         for name, value in self.data['effect'].items():
-            self.effects.append([res_manager.effect(name), value[0], value[1]])
+            # value: [主数值, 目标] 或 [主数值, 目标, {额外的关键字参数}]
+            params = value[2] if len(value) > 2 else {}
+            self.effects.append((res_manager.effect(name), value[0], value[1], params))
 
         self.is_touched = False
         self.delegate = []
@@ -27,21 +29,37 @@ class Card(arcade.Sprite):
         self.delegate = []
         self.scale = self.ori_scale
 
-    def use_card(self):
+    def _pick_target(self, target: str):
+        """取效果的目标；没有合法目标（例如敌人已全灭）时返回 None。"""
+        if target == "self":
+            return self.owner
+        chars = status_manager.enemy if target == "enemy" else status_manager.team
+        ptr = status_manager.enemy_ptr if target == "enemy" else status_manager.team_ptr
+        if not chars or not (0 <= ptr < len(chars)):
+            return None
+        return chars[ptr]
+
+    def valid_targets(self) -> bool:
+        """这张卡需要的目标是否都还在。"""
+        return all(self._pick_target(e[2]) is not None for e in self.effects)
+
+    def use_card(self) -> bool:
+        """打出这张卡。
+
+        返回是否成功：行动点不足、或者需要的目标已经不存在（例如敌人全灭后
+        还用攻击牌）时返回 False，由调用方决定怎么反馈。
+        """
         if self.owner.action_point < self.ap:
-            return
+            return False
+        if not self.valid_targets():
+            return False
 
         self.owner.action_point -= self.ap
         for e in self.effects:
-            match e[2]:
-                case "enemy":
-                    enemy = status_manager.enemy[status_manager.enemy_ptr]
-                    enemy.effects.append(e[0](enemy, e[1]))
-                case "self":
-                    self.owner.effects.append(e[0](self.owner, e[1]))
-                case "team":
-                    team = status_manager.team[status_manager.team_ptr]
-                    team.effects.append(e[0](team, e[1]))
+            who = self._pick_target(e[2])
+            if who is None:
+                continue
+            who.effects.append(e[0](who, e[1], **e[3]))
         status_manager.check_effect()
         for e in self.owner.effects:
             e.on_action()
@@ -50,6 +68,8 @@ class Card(arcade.Sprite):
         if self.owner.type == 'character':
             self.owner.hand.remove(self)
             self.owner.discard_pile.append(self)
+
+        return True
 
     def update(self, delta_time: float = 1 / 60, *args, **kwargs) -> None:
         self.curr_scale = self.ori_scale + self.touch_scale + self.select_scale

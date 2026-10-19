@@ -4,7 +4,7 @@
   "type": "attack",
   "action_point": 0,
   "effect": {
-    "mucus": [0, "team"],
+    "mucus": [1, "team"],
     "attack": [6, "team"]
   }
 }

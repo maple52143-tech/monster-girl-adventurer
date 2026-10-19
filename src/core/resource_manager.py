@@ -9,6 +9,7 @@ from typing import LiteralString
 import arcade
 
 from src.core.settings import HOME
+from src.effect.standard import StandardEffect
 
 @lru_cache(maxsize=1024)
 def search_res(path: Path, name: str):
@@ -23,6 +24,7 @@ def search_res(path: Path, name: str):
 class ResourceManager:
     def __init__(self):
         self.res_dir = os.path.join(Path(__file__).resolve().parent.parent.parent, "assets")
+        self._effect_cache: dict[str, type] = {}
 
     def image(self, name: str, other_dir: LiteralString = ""):
         file = search_res(Path(os.path.join(self.res_dir, "images", other_dir)), name)
@@ -57,23 +59,57 @@ class ResourceManager:
 
         return image_file, data_file
 
-    @lru_cache(maxsize=128)
-    def effect(self, name: str):
+    @staticmethod
+    def _load_module(module_name: str, file):
+        spec = importlib.util.spec_from_file_location(module_name, file)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+
+    def effect(self, name: str, strict: bool = False):
+        """加载 src/effect/<name>.py 中的效果类。
+
+        优先取模块里显式声明的 EFFECT_CLASS；
+        否则回退到旧规则（模块内定义、类名以 Effect 结尾、且是 StandardEffect 子类），
+        此时若出现一个以上候选会直接报错——旧实现按字母序取第一个，会静默拿错类。
+        """
+        if name in self._effect_cache:
+            return self._effect_cache[name]
+
         file = search_res(Path(os.path.join(HOME, "src", "effect")), name)
         if file is None:
             raise FileNotFoundError(f"效果文件不存在: {name}")
 
-        spec = importlib.util.spec_from_file_location(
-            f"src.effect.{name}", file
-        )
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
+        module = self._load_module(f"src.effect.{name}", file)
 
-        for name, obj in inspect.getmembers(module, inspect.isclass):
-            if "Effect" in obj.__name__:
-                return obj
+        cls = getattr(module, "EFFECT_CLASS", None)
+        if cls is None and strict:
+            raise LookupError(f"效果 {name} 需要在模块中声明 EFFECT_CLASS")
 
-        return None
+        if cls is None:
+            candidates = []
+            for _, obj in inspect.getmembers(module, inspect.isclass):
+                if not obj.__name__.endswith("Effect"):
+                    continue
+                if obj.__module__ != module.__name__:   # 排除 import 进来的基类/其它效果
+                    continue
+                if not isinstance(obj, type) or not issubclass(obj, StandardEffect):
+                    continue
+                candidates.append(obj)
+
+            if len(candidates) > 1:
+                names = ", ".join(c.__name__ for c in candidates)
+                raise RuntimeError(
+                    f"效果 {name} 有多个候选类（{names}），请在模块中声明 EFFECT_CLASS"
+                )
+
+            cls = candidates[0] if candidates else None
+
+        if cls is None:
+            raise LookupError(f"效果 {name} 中没有找到可用的效果类")
+
+        self._effect_cache[name] = cls
+        return cls
 
     def shader(self, name: str):
         shader_file = search_res(Path(os.path.join(self.res_dir, "shaders")), name)

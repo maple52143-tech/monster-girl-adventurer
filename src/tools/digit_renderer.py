@@ -20,6 +20,7 @@ class DigitRenderer:
         self._align = align
         self.spacing = 0.0
         self.visible = True
+        self.fade = 1.0
 
     def get_width(self, value, spacing: float = 0.0) -> float:
         n = len(str(value))
@@ -63,6 +64,9 @@ class DigitRenderer:
 
     def draw(self):
         if self.visible:
+            alpha = int(max(0.0, min(1.0, self.fade)) * 255)
+            if alpha <= 0:
+                return
             s = str(self._digit)
             total_w = self.get_width(self._digit, self.spacing)
 
@@ -78,7 +82,7 @@ class DigitRenderer:
                 if tex is None:      # 处理 '-' 等非数字字符
                     x += self.digit_w + self.spacing
                     continue
-                arcade.draw_texture_rect(tex, arcade.XYWH(x, self._y, self.digit_w, self.digit_h), )
+                arcade.draw_texture_rect(tex, arcade.XYWH(x, self._y, self.digit_w, self.digit_h), alpha=alpha)
                 x += self.digit_w + self.spacing
         else:
             return

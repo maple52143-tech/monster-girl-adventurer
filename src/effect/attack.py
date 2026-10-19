@@ -10,3 +10,6 @@ class AttackEffect(StandardEffect):
         super().on_apply()
         self.owner.hp = self.owner.hp - self.damage
         self.tick()
+
+
+EFFECT_CLASS = AttackEffect

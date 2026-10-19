@@ -1,13 +1,11 @@
 from abc import ABC
 from functools import total_ordering
 
-from src.objects.character import Character
-
 @total_ordering
 class StandardEffect(ABC):
     """持续状态基类"""
 
-    def __init__(self, name: str, duration: int, owner: Character):
+    def __init__(self, name: str, duration: int, owner: "Character"):
         self.name = name
         self.duration = duration  # 剩余持续回合数
         self.owner = owner

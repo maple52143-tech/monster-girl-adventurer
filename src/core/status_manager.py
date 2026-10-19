@@ -1,5 +1,3 @@
-
-
 class StatusManager:
     def __init__(self):
         self.is_combat = False
@@ -41,11 +39,21 @@ class StatusManager:
             raise ValueError(f"这里站不下这么多敌人: {value}")
         self._enemy_pointer = value
 
+    @staticmethod
+    def _alive_index(chars, current: int) -> int:
+        """把指针挪到最近的存活单位；全都死了或列表为空时回落到 0。"""
+        if not chars:
+            return 0
+        current %= len(chars)
+        for offset in range(len(chars)):
+            i = (current + offset) % len(chars)
+            if not chars[i].death:
+                return i
+        return 0
+
     def update_ptr(self):
-        if self._team_pointer >= len(self.team):
-            self._team_pointer = 0
-        if self._enemy_pointer >= len(self.enemy):
-            self._enemy_pointer = 0
+        self._team_pointer = self._alive_index(self.team, self._team_pointer)
+        self._enemy_pointer = self._alive_index(self.enemy, self._enemy_pointer)
 
     def _find_char(self, who):
         try:
@@ -60,46 +68,39 @@ class StatusManager:
         else:
             return self.enemy[id]
 
+    @staticmethod
+    def _run_effects(target, hook_name: str):
+        """在快照上遍历效果，避免边遍历边删除漏掉相邻元素。"""
+        for e in tuple(target.effects):
+            getattr(e, hook_name)()
+            if not e.effective:
+                target.effects.remove(e)
+                e.on_remove()
+
+    def _group(self, who: str):
+        return self.team if who == "team" else self.enemy
+
     def check_effect(self):
-        for t in self.team:
-            for e in t.effects:
-                e.on_apply()
-                if not e.effective:
-                    t.effects.remove(e)
-        for t in self.enemy:
-            for e in t.effects:
-                e.on_apply()
-                if not e.effective:
-                    t.effects.remove(e)
+        for t in tuple(self.team):
+            self._run_effects(t, "on_apply")
+        for t in tuple(self.enemy):
+            self._run_effects(t, "on_apply")
 
     def on_turn_start(self, who: str):
-        match who:
-            case "team":
-                k = self.team
-            case "enemy":
-                k = self.enemy
-        for t in k:
-            for e in t.effects:
-                e.on_turn_start()
-                if not e.effective:
-                    t.effects.remove(e)
+        for t in tuple(self._group(who)):
+            self._run_effects(t, "on_turn_start")
+        if who == "team":
+            # 本回合是否挨打已经结算过了，清掉标记，避免下一回合误触发
+            for t in tuple(self.team):
+                t.is_hurt = False
 
     def on_turn_end(self, who: str):
-        match who:
-            case "team":
-                k = self.team
-            case "enemy":
-                k = self.enemy
-        for t in k:
-            for e in t.effects:
-                e.on_turn_end()
-                if not e.effective:
-                    t.effects.remove(e)
+        for t in tuple(self._group(who)):
+            self._run_effects(t, "on_turn_end")
         if who == "enemy":
-            for t in self.team:
-                for e in t.effects:
-                    e.on_enemy_turn_end()
-                    if not e.effective:
-                        t.effects.remove(e)
+            # 敌方回合结束时，队伍身上的“被攻击触发”类状态也要结算
+            for t in tuple(self.team):
+                self._run_effects(t, "on_enemy_turn_end")
+
 
 status_manager = StatusManager()

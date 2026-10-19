@@ -24,17 +24,15 @@ class PlotManager:
         self.delegate.append(Plot(t, Timer(time), mode="follow"))
 
     def update(self, delta_time: float):
-        self._show = []
-        for i, d in enumerate(self.delegate):
+        for d in tuple(self.delegate):
             if d.timer.update(delta_time):
                 self.delegate.remove(d)
-            else:
-                self._show.append(d.sprite)
-                if i < len(self.delegate) - 1:
-                    match self.delegate[i + 1].mode:
-                        case "follow":
-                            break
-                        case "meantime":
-                            continue
+
+        # 按顺序展出：遇到第一条 follow 提示就独占屏幕，meantime 的与它并行
+        self._show = []
+        for d in self.delegate:
+            self._show.append(d.sprite)
+            if d.mode == "follow":
+                break
 
 plot_manager = PlotManager()
