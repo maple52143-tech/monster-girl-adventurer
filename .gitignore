@@ -222,3 +222,5 @@ __marimo__/
 
 # Draft images and other
 draft/
+# 运行时用户数据（存档 / 设置）
+userdata/

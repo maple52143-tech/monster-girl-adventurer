@@ -33,10 +33,15 @@ class GameWindow(arcade.Window):
             spec.loader.exec_module(module)
 
             for name, obj in inspect.getmembers(module, inspect.isclass):
-                if issubclass(obj, arcade.View) and obj is not arcade.View:
-                    scene_name = obj.__name__.lower()
-                    self.register_scene(scene_name, obj(self))
-                    logging.info(f"successfully register scene: {scene_name}")
+                if not issubclass(obj, arcade.View) or obj is arcade.View:
+                    continue
+                # 只注册「本模块里定义」的场景类：场景文件会 import 基类
+                # （如 UIScene），否则基类也会被当成一个场景实例化。
+                if obj.__module__ != module.__name__:
+                    continue
+                scene_name = obj.__name__.lower()
+                self.register_scene(scene_name, obj(self))
+                logging.info(f"successfully register scene: {scene_name}")
 
 
     def switch_scene(self, name: str) -> None:
